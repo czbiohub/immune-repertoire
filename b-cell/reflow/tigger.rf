@@ -1,0 +1,17 @@
+// Reflow module for TIgGER genotyping step. 
+
+param (
+	docker_image = "kleinstein/immcantation:1.10.2"
+	num_sp = 4
+)
+
+func TiggerRun(parse_select_tab file, run_name string) dir = 
+	exec(image := docker_image) (output dir) {"
+		mv {{parse_select_tab}} parse_select.tab
+
+    	Rscript /usr/local/bin/tigger-genotype \
+    	-d parse_select.tab \
+    	-n {{run_name}} \
+    	-o {{output}} \
+    	-p {{num_sp}} \
+	"}
