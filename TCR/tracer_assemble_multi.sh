@@ -1,0 +1,39 @@
+
+#/////////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////////////////
+# script: tracer_assemble_multi.sh
+# author: Lincoln Harris
+# date: 7.3.18
+# 
+# Bash script for running tracer assemble, adapted for multiprocessing. 
+# Make sure to run this on a large memory machine (ie. m4.16x)
+#
+# UPDATE: This works!!
+#/////////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////////////////
+#!/bin/bash
+
+driver () {
+	docker run --rm -v $PWD:/scratch -w /scratch teichlab/tracer assemble --ncores 4 --species Hsap ./*_R1.fastq ./*_R2.fastq ${dir} ./trinity_out
+}
+
+root_dir=/path/to/my/tCells
+
+i=0
+
+for dir in *; 
+do 
+	cd ${root_dir}/$dir
+	driver "$dir" &
+	cd .. 
+
+	# limit to X procs at a time
+	if (( $i % 14 == 0 )); 
+	then 
+		wait; 
+	fi
+	i=$((i+1))
+done
+
+#/////////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////////////////
